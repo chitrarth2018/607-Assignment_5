@@ -1,0 +1,31 @@
+---
+title: "DATA 607 - Assignment 5"
+author: "Chitrarth Kaushik"
+date: "2/27/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Importing the CSV file into R using readr function - read_csv. The function automatically lables missing column names and also guesses the variable type.
+
+```{r csv import, eval=TRUE}
+library(tidyverse)
+
+flight_det<-read_csv("https://raw.githubusercontent.com/chitrarth2018/607-Assignment_5/master/Flight_details.csv")
+
+```
+
+Transforming the wide data to generate the comparison between the two airlines
+
+```{r using gather function, eval=TRUE}
+
+final_flight<-flight_det%>%gather(City, Num_flights, 'Los Angeles', Phoenix, 'San Diego', 'San Francisco', Seattle, na.rm=TRUE)%>%rename(Flight_name=X1,Status=X2)%>%fill(Flight_name,.direction="down")
+
+final_flight_ana<-final_flight
+
+analysis<-final_flight_ana%>%group_by(Flight_name)%>%mutate(Per_tot=(Num_flights/sum(Num_flights))*100)%>%filter(Status=="delayed")%>%group_by(City, Flight_name)%>%summarize(Avg_Delayed_Perc=mean(Per_tot))
+view(analysis)
+
+```
+
